@@ -1,0 +1,13 @@
+# Project
+Products/*/*.lib
+Products/*/*.lib
+Projects/JPEG/Release
+Projects/JPEG/libjpeg/Release
+
+# Vim
+*.swp
+*.swo
+
+# Visual Studio
+.vs
+*.vcxproj.user
