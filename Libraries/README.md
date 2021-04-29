@@ -1,8 +1,7 @@
-# Current Version
-
-- jpeg-9d
-
-# When Updating
-- Copy `jconfig.vc` to `jconfig.h`
-
+# Current Versions
+Library    | Version  | Folder
+-----------|----------|-------
+JPEG       | 9d       | jpeg
+PNG        | 1.6.37   | lpng
+ZLIB       | 1.2.11   | lpng
 

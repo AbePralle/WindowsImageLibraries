@@ -2,11 +2,11 @@
 This repo contains Visual Studio 2019 projects (solutions) to build static JPEG, PNG, and ZLIB libraries.
 
 # Current Versions
-Library    | Version  | Project Path                   | Product
------------|----------|--------------------------------|-------------
-JPEG       | 9d       | Projects/jpeg                  | Products/jpeg
-PNG        | 1.6.37   | Projects/png/projects/vstudio  | Products/lpng
-ZLIB       | 1.2.11   | (Build as part of PNG project) | Products/lpng
+Library    | Version  | Folder
+-----------|----------|-------------
+JPEG       | 9d       | jpeg
+PNG        | 1.6.37   | lpng
+ZLIB       | 1.2.11   | lpng
 
 # Notes
 

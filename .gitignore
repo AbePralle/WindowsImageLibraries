@@ -2,16 +2,21 @@
 Products/*/*.lib
 Products/*/*.lib
 Projects/JPEG/Release
-Projects/JPEG/libjpeg/Release
+Projects/JPEG/Source/Release
+Projects/JPEG/Source/Debug
 
-lpng1637/projects/vstudio/libpng/Release Library
-lpng1637/projects/vstudio/pnglibconf/Release
-lpng1637/projects/vstudio/pngstest/Release Library
-lpng1637/projects/vstudio/pngtest/Release Library
-lpng1637/projects/vstudio/pngunknown/Release Library
-lpng1637/projects/vstudio/pngvalid/Release Library
-lpng1637/projects/vstudio/Release Library
-lpng1637/projects/vstudio/zlib/Release Library
+Projects/PNG/projects/vstudio/Release
+Projects/PNG/projects/vstudio/*/Release
+Projects/PNG/projects/vstudio/Release Library/
+Projects/PNG/projects/vstudio/libpng/Release Library
+Projects/PNG/projects/vstudio/pnglibconf/Release
+Projects/PNG/projects/vstudio/pngstest/Release Library
+Projects/PNG/projects/vstudio/pngtest/Release Library
+Projects/PNG/projects/vstudio/pngunknown/Release Library
+Projects/PNG/projects/vstudio/pngvalid/Release Library
+Projects/PNG/projects/vstudio/Release Library
+Projects/PNG/projects/vstudio/zlib/Release Library
+
 
 # Vim
 *.swp
