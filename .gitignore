@@ -1,8 +1,17 @@
-# Project
+# Projects
 Products/*/*.lib
 Products/*/*.lib
 Projects/JPEG/Release
 Projects/JPEG/libjpeg/Release
+
+lpng1637/projects/vstudio/libpng/Release Library
+lpng1637/projects/vstudio/pnglibconf/Release
+lpng1637/projects/vstudio/pngstest/Release Library
+lpng1637/projects/vstudio/pngtest/Release Library
+lpng1637/projects/vstudio/pngunknown/Release Library
+lpng1637/projects/vstudio/pngvalid/Release Library
+lpng1637/projects/vstudio/Release Library
+lpng1637/projects/vstudio/zlib/Release Library
 
 # Vim
 *.swp
