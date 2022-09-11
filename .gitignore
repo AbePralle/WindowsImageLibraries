@@ -25,3 +25,15 @@ Projects/PNG/projects/vstudio/zlib/Release Library
 # Visual Studio
 .vs
 *.vcxproj.user
+
+# Rogo
+.rogo
+Local.settings
+BuildLocal.rogue
+/Build
+
+# Mac
+.DS_Store
+
+# Vim
+*~
