@@ -1,6 +1,12 @@
 # Windows Media Libraries
 This repo contains Visual Studio 2022 projects (solutions) to build static JPEG, PNG, and ZLIB libraries for Windows.
 
+About     | Current Release
+----------|-----------------------
+Version   | 2.0
+Date      | September 12, 2022
+Platforms | Windows, macOS, Linux
+
 # Current Versions
 Library    | Version  | Solution Filepath                          | Product
 -----------|----------|--------------------------------------------|-------------
