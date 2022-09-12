@@ -5,17 +5,96 @@
 $requireRogue "2.0.10"
 
 routine rogo_default
-  rogo_build
+  rogo_update
 endRoutine
 
-routine rogo_build
+routine rogo_update
   File("Products").create_folder
-  rogo_build_jpeg
-  #rogo_build_png
+  rogo_update_jpeg
+  rogo_update_png
+  rogo_update_zlib
 endRoutine
 
-routine rogo_build_jpeg
-  println "[JPEG]"
+routine rogo_update_jpeg
+  local version = JSON.load(File("Versions.json"))//jpeg->String
+  local headers = File("Source/jpeg")
+  if (not headers.exists)
+    throw Error( "No such folder $ - download the latest Windows JPEG library from https://ijg.org and copy it there."(headers) )
+  endIf
+
+  local lib = File("Projects/jpeg/Release/libjpeg.lib")
+  if (not lib.exists)
+    throw Error( "Cannot locate build product $ - open Projects\\jpeg\\libjpeg.sln and Build Solution in Release mode."(lib) )
+  endIf
+
+  local dest = File("Libraries/jpeg"/version)
+  (dest/"include").create_folder
+  (dest/"lib").create_folder
+
+  copy( "[JPEG]", headers/"jpeglib.h",  dest/"include/jpeglib.h" )
+  copy( "[JPEG]", headers/"jerror.h",   dest/"include/jerror.h" )
+  copy( "[JPEG]", headers/"jmorecfg.h", dest/"include/jmorecfg.h" )
+  copy( "[JPEG]", headers/"jconfig.vc", dest/"include/jconfig.h" )
+  copy( "[JPEG]", lib,                  dest/"lib/libjpeg.lib" )
+endRoutine
+
+routine rogo_update_png
+  local version = JSON.load(File("Versions.json"))//png->String
+  local headers = File( "Projects/png" )
+  if (not headers.exists)
+    throw Error( "No such folder $ - download the latest PNG library from https://sourceforge.net/projects/libpng/files and copy it there."(headers) )
+  endIf
+
+  local libs = File( "Projects/png/projects/vstudio/Release Library" )
+  if (not libs.exists)
+    throw Error( "No such product folder $ - open Projects\\png\\projects\\vstudio\\vstudio.sln and Build Solution in Release Library mode."(libs) )
+  endIf
+
+  local listing = libs.listing( "libpng*.lib" )
+  if (listing.count != 1)
+    throw Error( "Unable to find libpng*.lib - open Projects\\png\\projects\\vstudio\\vstudio.sln and Build Solution in Release Library mode." )
+  endIf
+  local libpng = File( listing.first )
+
+  local zlib = libs/"zlib.lib"
+  if (not zlib.exists)
+    throw Error( "Unable to find zlib.lib - open Projects\\png\\projects\\vstudio\\vstudio.sln and Build Solution in Release Library mode." )
+  endIf
+
+  local dest = File("Libraries/lpng"/version)
+  (dest/"include").create_folder
+  (dest/"lib").create_folder
+
+  copy( "[PNG]",  headers/"png.h",        dest/"include/png.h" )
+  copy( "[PNG]",  headers/"pngconf.h",    dest/"include/pngconf.h" )
+  copy( "[PNG]",  headers/"pnglibconf.h", dest/"include/pnglibconf.h" )
+  copy( "[PNG]",  libpng,                 dest/"lib"/libpng.filename )
+endRoutine
+
+routine rogo_update_zlib
+  local version = JSON.load(File("Versions.json"))//zlib->String
+
+  local libs = File( "Projects/png/projects/vstudio/Release Library" )
+  if (not libs.exists)
+    throw Error( "No such product folder $ (which also builds zlib) - open Projects\\png\\projects\\vstudio\\vstudio.sln and Build Solution in Release Library mode."(libs) )
+  endIf
+
+  local zlib = libs/"zlib.lib"
+  if (not zlib.exists)
+    throw Error( "Unable to find zlib.lib - open Projects\\png\\projects\\vstudio\\vstudio.sln (which also builds zlib) and Build Solution in Release Library mode." )
+  endIf
+
+  local dest = File("Libraries/zlib"/version)
+  copy( "[ZLIB]", zlib, File("Libraries/zlib")/version/"zlib.lib" )
+endRoutine
+
+routine copy( label:String, src:File, dest:File )
+  assert src.exists
+  if (src != dest)
+    println "$ $ -> $"(label,src.conventional_filepath,dest.conventional_filepath)
+    src.copy_to( dest )
+  endIf
+endRoutine
 
 routine execute( commands:String, error_message=null:String, &suppress_error )->Logical
   forEach (cmd in LineReader(commands))

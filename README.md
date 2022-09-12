@@ -1,37 +1,32 @@
 # Windows Media Libraries
-This repo contains Visual Studio 2019 projects (solutions) to build static JPEG, PNG, and ZLIB libraries.
+This repo contains Visual Studio 2022 projects (solutions) to build static JPEG, PNG, and ZLIB libraries for Windows.
 
 # Current Versions
-Library    | Version  | Project Path                   | Product
------------|----------|--------------------------------|-------------
-JPEG       | 9d       | Projects/jpeg                  | Products/jpeg
-PNG        | 1.6.37   | Projects/png/projects/vstudio  | Products/lpng
-ZLIB       | 1.2.11   | (Build as part of PNG project) | Products/lpng
+Library    | Version  | Solution Filepath                          | Product
+-----------|----------|--------------------------------------------|-------------
+JPEG       | 9d       | Projects\jpeg\libjpeg.sln                  | Libraries\jpeg
+PNG        | 1.6.37   | Projects\png\projects\vstudio\vstudio.sln  | Libraries\lpng
+ZLIB       | 1.2.11   | (Built as part of PNG project)             | Libraries\zlib
 
-# Notes
-
-## General
-1. The necessary headers for various projects have already been copied to `Products/`.
-2. The binary `.lib` products are not part of this repository but are included in Releases.
+# Updating and Building
 
 ## JPEG
-1. Build `Release` for `Win32`
-2. Copy `jconfig.vc` to `jconfig.h`.
+  1. Download the latest Windows release from [https://sourceforge.net/projects/libpng/files/](https://sourceforge.net/projects/libpng/files/) and unzip it into `Libraries\jpeg`.
+  2. Open `Projects\jpeg\libjpeg.sln` in Visual Studio 2022+.
+  3. Set the solution configuration to `Release` and then select `Build > Build Solution`.
+  4. Update the JPEG version in `Versions.json`.
+  5. Run `rogo` to copy the build product and headers to the `Libraries` folder.
 
 ## PNG
-Download latest release from [https://sourceforge.net/projects/libpng/files/](https://sourceforge.net/projects/libpng/files/).
-Replace `Projects/png` with downloaded version.
-Open `Projects/png/projects/vstudio/vstudio.sln` in Visual Studio 2022+.
-Change the Solution Configuration to `Release`.
-Select `Build > Build zlib` from the menu.
-1. Build `Release Library` for `Win32`
-2. For `libpng` and `zlib` projects, modified `Properties > C/C++ > Advanced > Disable Specific Warnings` to include `5045` to suppress Spectre exploit messages (Spectre fix mode is not enabled).
-Build > Build zlib
-
+1. Download latest release from [https://sourceforge.net/projects/libpng/files/](https://sourceforge.net/projects/libpng/files/) and replace `Projects\png` with the new version.
+2. Open `Projects\png\projects\vstudio\vstudio.sln` in Visual Studio 2022+.
+3. Set the solution configuration to `Release Library`.
+4. Select `Build > Build Solution` from the menu.
+    - If the build fails due to build tools v142 not being found, search and replace `<PlatformToolset>v142` with `<PlatformToolset>v143` (using [ReID](https://github.com/AbePralle/ReID): `reid -e "<PlatformToolset>v142" "<PlatformToolset>v143"` from the `WindowsMediaLibraries\Projects\` folder).
+    - If the build fails due to any warnings being treated as errors, list the warning numbers in `Properties > C/C++ > Advanced > Disable Specific Warnings`.
+5. Run `rogo` to copy the build product and headers to the `Libraries` folder.
 
 ## ZLib
-Download latest release from https://www.zlib.net .
-Delete old `Projects/zlib` and rename downloaded `zlib-<version>` to `Projects/zlib`.
-1. `zlib.lib` is part of the PNG/`lpng` product folder.
-2. No headers for ZLib are included.
-
+1. Download latest release from https://www.zlib.net .
+2. Delete old `Projects\zlib` and rename downloaded `zlib-<version>` to `Projects\zlib`.
+3. `zlib.lib` is produced by building the PNG project.

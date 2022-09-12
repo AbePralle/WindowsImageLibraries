@@ -1,6 +1,5 @@
 # Projects
-Products/*/*.lib
-Products/*/*.lib
+Libraries
 Projects/JPEG/Release
 Projects/JPEG/Source/Release
 Projects/JPEG/Source/Debug
