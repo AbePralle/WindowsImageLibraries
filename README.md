@@ -1,4 +1,4 @@
-# Windows Media Libraries
+# Windows Media Libs
 This repo contains Visual Studio 2022 projects (solutions) to build static JPEG, PNG, and ZLIB libraries for Windows.
 
 About     | Current Release
@@ -13,6 +13,19 @@ Library    | Version  | Solution Filepath                          | Product
 JPEG       | 9d       | Projects\jpeg\libjpeg.sln                  | Libraries\jpeg
 PNG        | 1.6.37   | Projects\png\projects\vstudio\vstudio.sln  | Libraries\lpng
 ZLIB       | 1.2.11   | (Built as part of PNG project)             | Libraries\zlib
+
+# Precompiled Binaries
+
+## Morlock
+
+1. Install [Morlock](https://morlock.sh).
+2. `morlock install abepralle/windowsmedialibs` (or `morlock update windowsmedialibs` if installed).
+3. `morlock cflags windowsmedialibs` to obtain compile flags (or any combination of `morlock cflags windowsmedialibs jpeg png zlib`).
+4. `morlock libs windowsmedialibs` to obtain .lib names for linking (or any combination of `morlock libs windowsmedialibs jpeg png zlib`).
+
+## Manual Install
+
+Download `Libraries-<version>.zip` from latest release in the `Releases` category on GitHub.
 
 # Updating and Building
 

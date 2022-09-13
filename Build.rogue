@@ -80,7 +80,8 @@ routine rogo_update_zlib
   endIf
 
   local dest = File("Libraries/zlib")
-  copy( "[ZLIB]", zlib, File("Libraries/zlib/zlib.lib") )
+  (dest/"lib").create_folder
+  copy( "[ZLIB]", zlib, dest/"lib/zlib.lib") )
 endRoutine
 
 routine rogo_update_version( version:String )

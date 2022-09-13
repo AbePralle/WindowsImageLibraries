@@ -37,9 +37,43 @@ class WindowsMediaLibrariesPackage : Package
       build
       # Builds the unpacked archive. See build() above.
 
-      #local libs = File(archive_folder)/"Libraries"
-      trace File(".").abs
-      trace version
-      trace archive_filename
+      local zipfile = download_asset( "Libraries-$.zip"(version) )
+      Zip( zipfile ).extract( install_folder )
+
+      local versions = JSON.load( File(archive_folder)/"Versions.json" )
+      println
+      println "Libraries installed:"
+      println "  - jpeg $"(versions//jpeg)
+      println "  - lpng $"(versions//png)
+      println "  - zlib $"(versions//zlib)
+      println
+      println "Run 'morlock cflags windowsmedialibs [jpeg|png|zlib]' and 'morlock libs windowsmedialibs [jpeg|png|zlib]' to obtain compile-time info.".word_wrapped(Console.width.or_smaller(80))
+
+    method on( action:String )
+      localize args
+      if (args.is_empty) args.[ add("jpeg"), add("png"), add("zlib") ]
+
+      which (action)
+        case "cflags"
+          local result = ""
+          local inc = which{ System.is_windows:"/I" || "-I" }
+          if (args.contains("jpeg")) result .= appending( inc + File(install_folder)/"Libraries/jpeg/include" )
+          if (args.contains("png"))  result .= appending( inc + File(install_folder)/"Libraries/lpng/include" )
+          println result
+
+        case "libs"
+          local result = ""
+          if (args.contains("jpeg")) result .= appending( find_libs( File(install_folder)/"Libraries/jpeg/lib") )
+          if (args.contains("png"))  result .= appending( find_libs( File(install_folder)/"Libraries/lpng/lib") )
+          if (args.contains("zlib")) result .= appending( find_libs( File(install_folder)/"Libraries/zlib/lib") )
+          println result
+      endWhich
+
+    method find_libs( folder:File )->String
+      local result = ""
+      forEach (lib in folder.listing)
+        if (lib.ends_with(".lib")) result .= appending(lib)
+      endForEach
+      return result
 
 endClass
