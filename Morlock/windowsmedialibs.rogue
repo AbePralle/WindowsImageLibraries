@@ -47,7 +47,7 @@ class WindowsMediaLibrariesPackage : Package
       println "  - lpng $"(versions//png)
       println "  - zlib $"(versions//zlib)
       println
-      println "Run 'morlock cflags windowsmedialibs [jpeg|png|zlib]' and 'morlock libs windowsmedialibs [jpeg|png|zlib]' to obtain compile-time info.".word_wrapped(Console.width.or_smaller(80))
+      println "Run 'morlock cflags windowsmedialibs [jpeg|png|zlib]' to obtain compile-time info.".word_wrapped(Console.width.or_smaller(80))
 
     method on( action:String )
       localize args
@@ -79,7 +79,6 @@ class WindowsMediaLibrariesPackage : Package
       local result = ""
       forEach (lib in folder.listing)
         if (lib.ends_with(".lib") and lib.begins_with(prefix)) result .= appending(lib)
-        else trace "no bueno"
       endForEach
       return result
 
