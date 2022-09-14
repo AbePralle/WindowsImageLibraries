@@ -53,26 +53,33 @@ class WindowsMediaLibrariesPackage : Package
       localize args
       if (args.is_empty) args.[ add("jpeg"), add("png"), add("zlib") ]
 
-      which (action)
-        case "cflags"
-          local result = ""
-          local inc = which{ System.is_windows:"/I" || "-I" }
-          if (args.contains("jpeg")) result .= appending( inc + File(install_folder)/"Libraries/jpeg/include" )
-          if (args.contains("png"))  result .= appending( inc + File(install_folder)/"Libraries/lpng/include" )
-          println result
+      local action_handled = false
 
-        case "libs"
-          local result = ""
-          if (args.contains("jpeg")) result .= appending( find_libs( File(install_folder)/"Libraries/jpeg/lib") )
-          if (args.contains("png"))  result .= appending( find_libs( File(install_folder)/"Libraries/lpng/lib") )
-          if (args.contains("zlib")) result .= appending( find_libs( File(install_folder)/"Libraries/zlib/lib") )
-          println result
-      endWhich
+      local result = ""
+      if (action == "cflags" or action == "includes")
+        local inc = which{ System.is_windows:"/I" || "-I" }
+        result .= appending( inc + File(install_folder)/"Libraries/include" )
+        action_handled = true
+      endIf
 
-    method find_libs( folder:File )->String
+      if (action == "cflags" or action == "libs")
+        if (args.contains("jpeg")) result .= appending( find_libs( File(install_folder)/"Libraries/lib", "libjpeg" ) )
+        if (args.contains("png"))  result .= appending( find_libs( File(install_folder)/"Libraries/lib", "libpng" )  )
+        if (args.contains("zlib")) result .= appending( find_libs( File(install_folder)/"Libraries/lib", "zlib" ) )
+        action_handled = true
+      endIf
+
+      if (action_handled)
+        if (result.count) println result
+      else
+        prior.on( action )
+      endIf
+
+    method find_libs( folder:File, prefix:String )->String
       local result = ""
       forEach (lib in folder.listing)
-        if (lib.ends_with(".lib")) result .= appending(lib)
+        if (lib.ends_with(".lib") and lib.begins_with(prefix)) result .= appending(lib)
+        else trace "no bueno"
       endForEach
       return result
 

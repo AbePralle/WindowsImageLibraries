@@ -25,7 +25,7 @@ routine rogo_update_jpeg
     throw Error( "Cannot locate build product $ - open Projects\\jpeg\\libjpeg.sln and Build Solution in Release mode."(lib) )
   endIf
 
-  local dest = File("Libraries/jpeg")
+  local dest = File("Libraries")
   (dest/"include").create_folder
   (dest/"lib").create_folder
 
@@ -58,7 +58,7 @@ routine rogo_update_png
     throw Error( "Unable to find zlib.lib - open Projects\\png\\projects\\vstudio\\vstudio.sln and Build Solution in Release Library mode." )
   endIf
 
-  local dest = File("Libraries/lpng")
+  local dest = File("Libraries")
   (dest/"include").create_folder
   (dest/"lib").create_folder
 
@@ -79,7 +79,7 @@ routine rogo_update_zlib
     throw Error( "Unable to find zlib.lib - open Projects\\png\\projects\\vstudio\\vstudio.sln (which also builds zlib) and Build Solution in Release Library mode." )
   endIf
 
-  local dest = File("Libraries/zlib")
+  local dest = File("Libraries")
   (dest/"lib").create_folder
   copy( "[ZLIB]", zlib, dest/"lib/zlib.lib" )
 endRoutine
