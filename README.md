@@ -3,7 +3,7 @@ This repo contains Visual Studio 2022 projects (solutions) to build static JPEG,
 
 About     | Current Release
 ----------|-----------------------
-Version   | 2.2.1
+Version   | 2.2.2
 Date      | September 13, 2022
 Platforms | Windows, macOS, Linux
 
