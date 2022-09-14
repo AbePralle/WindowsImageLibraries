@@ -78,7 +78,7 @@ class WindowsMediaLibrariesPackage : Package
     method find_libs( folder:File, prefix:String )->String
       local result = ""
       forEach (lib in folder.listing)
-        if (lib.ends_with(".lib") and lib.begins_with(prefix)) result .= appending(lib)
+        if (lib.ends_with(".lib") and File(lib).filename.begins_with(prefix)) result .= appending(lib)
       endForEach
       return result
 
