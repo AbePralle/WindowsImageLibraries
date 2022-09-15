@@ -5,37 +5,8 @@ class WindowsMediaLibrariesPackage : Package
     name = "abepralle/windowsmedialibs"
 
   METHODS
-    #method init
-      # Specify dependencies like this:
-      # dependency "abepralle/helloworld"
-      # dependency "abepralle/rogue@1.9.2"   # (1.9.2 or better)
-
-      # Uncomment to automatically determine releases using GitHub's API.
-      # scan_repo_releases
-
-      # OR explicitly specify one or more release()s:
-      # release "https://raw.githubusercontent.com/.../xyz-1.0.tar.gz"
-      # release ...
-
-    method build
-      noAction  # no build steps required, only install
-
     method install
-      # By the time install() is called the following properties are set:
-      #   version           # "1.0"
-      #   url               # "https://github.com/.../abc.tar.gz"
-      #   archive_filename  # "abc.tar.gz"
-      #
-      # The current working directory is a temporary build folder.
-
-      download
-      # Typically no need to customize
-
-      unpack
-      # Knows how to unpack .tar.gz (Unix-like only) and .zip (Unix+Windows)
-
-      build
-      # Builds the unpacked archive. See build() above.
+      prior.install
 
       local zipfile = download_asset( "Libraries-$.zip"(version) )
       Zip( zipfile ).extract( install_folder )
