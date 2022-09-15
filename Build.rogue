@@ -2,10 +2,29 @@
 # to this folder and type "rogo" at the command line, or "rogo help" for a list
 # of supported commands.
 
-$requireRogue "2.0.10"
+$requireRogue "2.1"
+
+augment Build
+  # You can create a Local.settings file with overrides for these values, e.g.:
+  # BUILD_MODE = release
+  PROPERTIES
+    PROJECT          = "WindowsMediaLibs"
+    LAUNCHER_NAME    = PROJECT.to_lowercase : String
+
+    BUILD_MODE       = "debug"
+    LAUNCHER_FOLDER  = "/usr/local/bin"
+    ROGUEC_FLAGS     = ""
+    CC_ARGS_UNIX     = ""
+    CC_LINK_UNIX     = ""
+    CC_ARGS_WINDOWS  = ""
+    CC_LINK_WINDOWS  = ""
+endAugment
 
 routine rogo_default
   rogo_update
+  rogo_build
+  #rogo_install  # Uncomment to automatically install a /usr/local/bin/windowsmedialibs launcher
+  rogo_run
 endRoutine
 
 routine rogo_update
@@ -84,9 +103,149 @@ routine rogo_update_zlib
   copy( "[ZLIB]", zlib, dest/"lib/zlib.lib" )
 endRoutine
 
+routine rogo_run
+  # Runs this project.
+  execute exe_file.esc
+endRoutine
+
+routine rogo_debug
+  # Compiles in debug mode and runs.
+  rogo_build_debug
+  rogo_run
+endRoutine
+
+routine rogo_release
+  # Compiles in release mode and runs.
+  rogo_build_release
+  rogo_run
+endRoutine
+
+routine rogo_clean
+  # Deletes the Build/ and .rogo/ folders.
+  File( "Build" ).delete
+  File( ".rogo" ).delete
+endRoutine
+
+routine rogo_build
+  # Recompiles Rogue -> C -> Exe if needed. 'rogo rebuild' forces a build.
+  local source_files = Files( "Source", "**/*.rogue" )
+  if (source_files.any_newer_than(exe_file))
+    local c_filepath = "Build/$-$.c" (Build.PROJECT,System.os)
+    if (source_files.any_newer_than(c_filepath))
+      compile_rogue
+    endIf
+    compile_c
+  endIf
+endRoutine
+
+routine rogo_build_debug
+  # Force-rebuilds in debug mode.
+  rogo_rebuild_debug
+endRoutine
+
+routine rogo_build_release
+  # Force-rebuilds in release mode.
+  rogo_rebuild_release
+endRoutine
+
+routine rogo_rebuild
+  # Force-rebuilds project.
+  compile_rogue
+  compile_c
+endRoutine
+
+routine rogo_rebuild_debug
+  # Force-rebuilds in debug mode.
+  Build.BUILD_MODE = "debug"
+  rogo_rebuild
+endRoutine
+
+routine rogo_rebuild_release
+  # Force-rebuilds in release mode.
+  Build.BUILD_MODE = "release"
+  rogo_rebuild
+endRoutine
+
+routine rogo_install
+  # Builds and installs the Exe to a system-appropriate location (see also 'rogo link').
+  rogo_build
+  local exe_filepath = exe_file.abs.filepath
+  if (System.is_windows)
+    local exe_folder = File(exe_filepath).parent.conventional_filepath
+    local path = System.env//PATH
+    if (not path.to_lowercase.contains(exe_folder.to_lowercase))
+      println
+      println ''Add the following to your system PATH then reopen this command prompt to be able''
+      println ''to launch $ by typing "$":'' (Build.PROJECT,Build.LAUNCHER_NAME)
+      println
+      println "  ADD THIS TO YOUR PATH"
+      println "  " + exe_folder
+    endIf
+  else
+    contingent
+      local result = Process.run( "which " + Build.LAUNCHER_NAME, &env )
+      necessary (result.success)
+      local launcher_filepath = result->String.trimmed
+      necessary launcher_filepath
+      necessary String( File(launcher_filepath) ).contains( exe_filepath )
+
+    unsatisfied
+      local launcher_filepath = "$/$" (launcher_folder,Build.LAUNCHER_NAME)
+      println "Creating launcher " + launcher_filepath
+      local sudo = ""
+      loop
+        try
+          if (not File(launcher_folder).exists) execute( "$mkdir $"(sudo,launcher_folder) )
+          File( "$.launcher"(Build.LAUNCHER_NAME) ).save( ''#!/bin/sh\nexec "$" "$@"\n''(exe_filepath,'$') )
+          execute( "$mv $.launcher $"(sudo,Build.LAUNCHER_NAME,launcher_filepath) )
+          execute( "$chmod a+x $"(sudo,launcher_filepath) )
+          escapeLoop
+        catch (err:Error)
+          if (sudo != "") throw err
+          sudo = "sudo "
+        endTry
+      endLoop
+    endContingent
+  endIf
+endRoutine
+
+routine rogo_link
+  # Builds and invokes 'morlock link ...' to add a launcher to Morlock's binpath.
+  rogo_build
+  execute "morlock link $ $"(Build.LAUNCHER_NAME,exe_file.esc)
+endRoutine
+
+routine rogo_uninstall
+  # Cleans the project and uninstalls the launcher from 'rogo install'.
+  rogo_clean
+  if (not System.is_windows) verbose_delete( "$/$"(launcher_folder,Build.LAUNCHER_NAME) )
+endRoutine
+
 routine rogo_update_version( version:String )
   # Updates the version number and date in the project source and README.md.
   if (version.count == 0) throw Error( "New version number expected, e.g. '1.0.2'." )
+
+  block file = File( "Source/WindowsMediaLibs.rogue" )
+    if (file.exists)
+      local og_content = String(file)
+      local content = og_content
+
+      content = content.replacing_pattern(
+      ''define VERSION "$"'',
+      ''define VERSION "$"''(version)
+      )
+
+      content = content.replacing_pattern(
+        ''define DATE "$"'',
+        ''define DATE    "$"''(Date.today->String(&verbose))
+      )
+
+      if (content != og_content)
+        println "Updating version and date in $"(file)
+        file.save( content )
+      endIf
+    endIf
+  endBlock
 
   block file = File( "README.md" )
     if (file.exists)
@@ -191,6 +350,68 @@ routine copy( label:String, src:File, dest:File )
   endIf
 endRoutine
 
+routine compile_rogue
+  local src_filepath = "Source/$.rogue" (Build.PROJECT)
+  local c_filepath = "Build/$-$" (Build.PROJECT,System.os)
+  local flags = Build.ROGUEC_FLAGS
+  if (Build.BUILD_MODE == "debug") flags = flags.with_suffix(' ') + "--debug"
+  local cmd = "roguec $ $ --main --output=$ --target=Console,C,$"...
+              (File(src_filepath).esc,flags,File(c_filepath).esc,System.os)
+  println "> " + cmd
+  local status = Process.run( cmd, &env )
+  local result = status->String
+  println result
+  if (not status.success) throw Error( "Build failed." )
+  if (result.contains("ROGO:"))
+    System.exit( execute("rogo".appending(System.command_line_arguments.join(' '))) )
+  endIf
+endRoutine
+
+routine compile_c
+  local c_filepath = File( "Build/$-$" (Build.PROJECT,System.os) ).esc
+  local exe_filepath = exe_file.esc
+  if (System.is_windows)
+    local flags = Build.CC_ARGS_WINDOWS
+    if (flags != "") flags += " "
+    flags += which{ Build.BUILD_MODE=="release":"/O2" || "/Od" }
+    local obj_filepath = File( "Build/$-Windows.obj"(Build.PROJECT) ).esc
+    local cc = "cl $ /nologo $.c /Fo$ /Fe$" (flags,c_filepath,obj_filepath,exe_filepath)
+    cc .= appending( "$LIBRARY_FLAGS" )
+    cc .= appending( Build.CC_LINK_WINDOWS )
+    execute cc
+  else
+    local flags = Build.CC_ARGS_UNIX
+    if (flags != "") flags += " "
+    flags += which{ Build.BUILD_MODE=="release":"-O3" || "-O0" }
+    local cc = "cc $ -Wall -fno-strict-aliasing $.c -o $ -lm" (flags,File(c_filepath).esc,exe_file.esc)
+    cc .= appending( "$LIBRARY_FLAGS" )
+    cc .= appending( Build.CC_LINK_UNIX )
+    execute cc
+  endIf
+endRoutine
+
+routine exe_file->File
+  if (System.is_windows) return File( "Build/$.exe"(Build.LAUNCHER_NAME) )
+  return File( "Build/$-$"(Build.PROJECT,System.os) )
+endRoutine
+
+routine launcher_folder->String
+  local result = Build.LAUNCHER_FOLDER
+  result = File(result).resolved.filepath
+  if (result.count > 1) result .= without_suffix('/')
+  return result
+endRoutine
+
+routine verbose_delete( filepath:String )
+  if (File(filepath).exists)
+    println "> Delete " + filepath
+    if (not File(filepath).delete)
+      println "*** Failed to delete - retrying with sudo"
+      local cmd = ''sudo rm -rf $'' (File(filepath).esc)
+      execute cmd
+    endIf
+  endIf
+endRoutine
 routine execute( commands:String, error_message=null:String, &suppress_error )->Logical
   forEach (cmd in LineReader(commands))
     print( "> " )

@@ -1,0 +1,76 @@
+#================================================================================
+# WindowsMediaLibs.rogue
+# September 15, 2022
+#================================================================================
+
+$define VERSION "1.0"
+$define DATE    "September 15, 2022"
+
+$requireRogue "2.1"
+
+try
+  WindowsMediaLibs( System.command_line_arguments )
+catch (error:Error)
+  Console.error.println error
+  System.exit 1
+endTry
+
+class WindowsMediaLibs
+  METHODS
+    method init( args:String[] )
+      local show_includes = false
+      local show_libs = false
+      local show_jpeg = false
+      local show_png = false
+      local show_zlib = false
+
+      forEach (arg in args)
+        which (arg)
+          case "--help", "-h", "-?"
+            print_usage
+            System.exit 0
+          case "includes":    show_includes = true
+          case "libs":        show_libs = true
+          case "png", "lpng": show_png = true
+          case "jpeg":        show_jpeg = true
+          case "zlib":        show_zlib = true
+          others
+            println "[WindowsMediaLibs] Syntax error: unrecognized argument '$'.\n"(arg)
+            print_usage
+            System.exit 1
+        endWhich
+      endForEach
+
+      if (not show_includes and not show_libs) show_includes = true; show_libs = true
+
+      if (not show_jpeg and not show_png and not show_zlib)
+        show_jpeg = true
+        show_png = true
+        show_zlib = true
+      endIf
+
+      local cmd = "morlock"
+      if (show_includes and show_libs) cmd .= appending( "cflags" )
+      elseIf (show_includes)           cmd .= appending( "includes" )
+      else                             cmd .= appending( "libs" )
+
+      cmd .= appending( "windowsmedialibs" )
+
+      if (show_jpeg) cmd .= appending( "jpeg" )
+      if (show_png)  cmd .= appending( "png" )
+      if (show_zlib) cmd .= appending( "zlib" )
+
+      System.exit( System.run(cmd) )
+
+    method print_usage
+      println "WindowsMediaLibs v$"(VERSION)
+      println "$ by Abe Pralle"(DATE)
+      println
+
+      println @|USAGE
+               |  windowsmedialibs [OPTIONS] [includes|libs]* [jpeg|png|zlib]*
+               |
+               |OPTIONS
+               |  --help, -h, -?
+               |    Show this help text.
+endClass

@@ -20,7 +20,7 @@ ZLIB       | 1.2.11   | (Built as part of PNG project)
 
 1. Install [Morlock](https://morlock.sh).
 2. `morlock install abepralle/windowsmedialibs` (or `morlock update windowsmedialibs` if installed).
-3. `morlock cflags windowsmedialibs` to obtain compile flags (can append any combination of `jpeg png zlib`; otherwise all are given).
+3. `windowsmedialibs` to obtain compile flags (can append any combination of `includes libs jpeg png zlib`; otherwise all are given).
 
 ## Manual Install
 
