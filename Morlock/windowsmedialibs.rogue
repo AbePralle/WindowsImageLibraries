@@ -47,7 +47,7 @@ class WindowsMediaLibrariesPackage : Package
       println "  - lpng $"(versions//png)
       println "  - zlib $"(versions//zlib)
       println
-      println "Run 'morlock cflags windowsmedialibs [jpeg|png|zlib]' to obtain compile-time info.".word_wrapped(Console.width.or_smaller(80))
+      println "Run 'windowsmedialibs [includes|libs] [jpeg|png|zlib]' to obtain compile-time info.".word_wrapped(Console.width.or_smaller(80))
 
     method on( action:String )
       localize args
