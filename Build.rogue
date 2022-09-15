@@ -4,6 +4,8 @@
 
 $requireRogue "2.1"
 
+uses Utility/VersionNumber
+
 augment Build
   # You can create a Local.settings file with overrides for these values, e.g.:
   # BUILD_MODE = release
@@ -221,9 +223,27 @@ routine rogo_uninstall
   if (not System.is_windows) verbose_delete( "$/$"(launcher_folder,Build.LAUNCHER_NAME) )
 endRoutine
 
+routine current_version->String
+  contingent
+    local file = File("README.md")
+    necessary (file.exists)
+
+    if local line = String(file).split('\n').find( $.contains_pattern("Version|$(I)") )
+      local v = line.after_first('|').trimmed
+      necessary (v.count)
+      return v
+    endIf
+  endContingent
+  return "(none)"
+endRoutine
+
 routine rogo_update_version( version:String )
   # Updates the version number and date in the project source and README.md.
-  if (version.count == 0) throw Error( "New version number expected, e.g. '1.0.2'." )
+  localize current_version
+  if (version.count == 0) throw Error( "New version number expected, e.g. '1.0.2'. Current version: $"(current_version) )
+  if (current_version != "(none)" and VersionNumber(version) <= current_version)
+    throw Error( "The new version number ($) must be greater than the current version number ($)."(version,current_version) )
+  endIf
 
   block file = File( "Source/WindowsMediaLibs.rogue" )
     if (file.exists)
@@ -271,7 +291,7 @@ endRoutine
 
 routine rogo_commit( new_version:String )
   # Updates README version number and git-commits with a version number message.
-  if (not String.exists(new_version)) throw Error( "Expected version number after 'rogo commit'." )
+  if (not String.exists(new_version)) throw Error( "Expected version number after 'rogo commit'. Current version: $"(current_version) )
   rogo_update_version( new_version )
 
   if (not System.find_executable("git")) throw Error( "Git must be installed." )
@@ -296,7 +316,7 @@ endRoutine
 
 routine rogo_publish( new_version:String )
   # Updates source and README version number, commits, and publishes a release to GitHub.
-  if (not String.exists(new_version)) throw Error( "Expected version number after 'rogo publish'." )
+  if (not String.exists(new_version)) throw Error( "Expected version number after 'rogo publish'. Current version: $"(current_version) )
   if (not System.find_executable("gh")) throw Error( "The GitHub command line tool 'gh' must be installed." )
   rogo_update
   rogo_commit( new_version )
@@ -538,7 +558,7 @@ class Build [singleton]
     method on_error
       local w = Console.width.or_smaller( 80 )
       Console.error.println "=" * w
-      Console.error.println rogo_error
+      Console.error.println rogo_error->String.word_wrapped(Console.width.or_smaller(80))
       Console.error.println "=" * w
       on_exit
       System.exit 1
