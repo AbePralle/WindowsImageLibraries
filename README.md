@@ -3,8 +3,8 @@ This repo contains Visual Studio 2022 projects (solutions) to build static JPEG,
 
 About     | Current Release
 ----------|-----------------------
-Version   | 2.3.2
-Date      | September 15, 2022
+Version   | 2.3.3
+Date      | February 14, 2023
 Platforms | Windows, macOS, Linux
 
 # Current Versions
@@ -19,7 +19,7 @@ ZLIB       | 1.2.11   | (Built as part of PNG project)
 ## Morlock
 
 1. Install [Morlock](https://morlock.sh).
-2. `morlock install abepralle/windowsmedialibs` (or `morlock update windowsmedialibs` if installed).
+2. `morlock install brombres/windowsmedialibs` (or `morlock update windowsmedialibs` if installed).
 3. `windowsmedialibs` to obtain compile flags (can append any combination of `includes libs jpeg png zlib`; otherwise all are given).
 
 ## Manual Install
@@ -40,7 +40,7 @@ Download `Libraries-<version>.zip` from latest release in the `Releases` categor
 2. Open `Projects\png\projects\vstudio\vstudio.sln` in Visual Studio 2022+.
 3. Set the solution configuration to `Release Library`.
 4. Select `Build > Build Solution` from the menu.
-    - If the build fails due to build tools v142 not being found, search and replace `<PlatformToolset>v142` with `<PlatformToolset>v143` (using [ReID](https://github.com/AbePralle/ReID): `reid -e "<PlatformToolset>v142" "<PlatformToolset>v143"` from the `WindowsMediaLibs\Projects\` folder).
+    - If the build fails due to build tools v142 not being found, search and replace `<PlatformToolset>v142` with `<PlatformToolset>v143` (using [ReID](https://github.com/brombres/ReID): `reid -e "<PlatformToolset>v142" "<PlatformToolset>v143"` from the `WindowsMediaLibs\Projects\` folder).
     - If the build fails due to any warnings being treated as errors, list the warning numbers in `Properties > C/C++ > Advanced > Disable Specific Warnings`.
 5. Run `rogo` to copy the build product and headers to the `Libraries` folder.
 

@@ -3,8 +3,8 @@
 # September 15, 2022
 #================================================================================
 
-$define VERSION "2.3.2"
-$define DATE    "September 15, 2022"
+$define VERSION "2.3.3"
+$define DATE    "February 14, 2023"
 
 $requireRogue "2.1"
 
@@ -64,7 +64,7 @@ class WindowsMediaLibs
 
     method print_usage
       println "WindowsMediaLibs v$"(VERSION)
-      println "$ by Abe Pralle"(DATE)
+      println "$ by Brom Bresenham"(DATE)
       println
 
       println @|USAGE
